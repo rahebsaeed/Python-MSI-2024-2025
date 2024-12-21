@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Industrial Sensors Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Industrial Sensors Chatbot</h1>
+        </header>
+        <div class="chatbox">
+            <div id="chat" class="chat-content">
+                <!-- Responses will appear here -->
+            </div>
+            <textarea id="query" placeholder="Ask about industrial sensors..." rows="3"></textarea>
+            <button id="send" onclick="sendQuery()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const query = document.getElementById("query").value;
+            if (query.trim() === "") {
+                alert("Please enter a question.");
+                return;
+            }
+
+            // Show user input in the chatbox
+            appendMessage('You: ' + query, 'user');
+
+            // Send the query to the backend
+            const response = await fetch('http://127.0.0.1:5000/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            });
+
+            const data = await response.json();
+
+            // Show the response from the model in the chatbox
+            appendMessage('Bot: ' + data.response, 'bot');
+            document.getElementById("query").value = ""; // Clear the input field
+        }
+
+        function appendMessage(message, sender) {
+            const chat = document.getElementById("chat");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add(sender);
+            messageDiv.innerText = message;
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight; // Scroll to the bottom
+        }
+    </script>
+</body>
+</html>

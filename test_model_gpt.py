@@ -1,12 +1,23 @@
-import requests
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-API_URL = "https://api-inference.huggingface.co/models/openai-community/gpt2"
-headers = {"Authorization": "Bearer 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"}
+# Load the tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+model = AutoModelForCausalLM.from_pretrained("gpt2")
 
-def query(payload):
-	response = requests.post(API_URL, headers=headers, json=payload)
-	return response.json()
-	
-output = query({
-	"inputs": "can you help me ",
-})
+# Prepare the input
+prompt = "Once upon a time,"
+input_ids = tokenizer(prompt, return_tensors="pt").input_ids
+
+# Generate text
+gen_tokens = model.generate(
+    input_ids,
+    max_length=50,
+    num_return_sequences=1,
+    no_repeat_ngram_size=3, # Avoid repeating ngrams
+    temperature=0.7,        # Control randomness (higher = more random)
+)
+generated_text = tokenizer.decode(gen_tokens[0], skip_special_tokens=True)
+
+# Print the generated text
+print(generated_text)
