@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+    <script src="https://cdn.ckeditor.com/4.22.1/full/ckeditor.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Send Emails</h1>
+
+        <!-- Display flashed messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" onsubmit="updateContent()">
+            <div class="mb-3">
+                <label for="subject" class="form-label">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject" required>
+            </div>
+            <div class="mb-3">
+                <label for="recipient" class="form-label">Recipient</label>
+                <input type="text" class="form-control" id="recipient" name="recipient" placeholder="example1@gmail.com, example2@gmail.com" required>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="no_reply" name="no_reply">
+                <label class="form-check-label" for="no_reply">Send as No Reply</label>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">HTML Content</label>
+                <textarea class="form-control" id="content" name="content" rows="5" style="resize: vertical; height: 310px; width:100%" required>
+                <div class="email-container" style="overflow-x: hidden; overflow-y: hidden; max-width: 600px; margin: 20px auto; background: #ffffff; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><div style=" display: block;"><a href="https://www.linkedin.com/company/fsdm-club-robotics/" aria-label="Visit FSDM Robotics Club LinkedIn"><img src="https://github.com/rahebsaeed/club-resources/blob/main/email%20logo.jpg?raw=true" alt="FSDM Robotics Club Logo" ></a></div><div class="email-body" style="padding: 20px; color: #333;"><p>Dear [Recipient's Name],</p></div><div class="email-footer" style="background-color: #e4e8f3; text-align: center; color: #555; padding: 20px; font-size: 0.9em;"><p style="margin-bottom:10px;">© 2025 <b>FSDM Robotics Club</b>. All rights reserved.</p><p style="margin-top:0px; margin-bottom:5px;">Follow us on:</p><div style="margin-top:5px;"><a href="https://wa.me/your_number" target="_blank" aria-label="WhatsApp" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png" alt="WhatsApp" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="https://www.linkedin.com/company/fsdm-club-robotics/" target="_blank" aria-label="LinkedIn" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="https://www.instagram.com/fsdm_robotics?igsh=cGFnbXF2eGE3aDUz" target="_blank" aria-label="Instagram" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="#" target="_blank" aria-label="Facebook" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Facebook_Logo_2023.png/600px-Facebook_Logo_2023.png" alt="Facebook" style="margin: 0 8px; width: 24px; height: 24px;"></a></div></div></div>
+                </textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Email</button>
+        </form>
+    </div>
+    <script>
+        CKEDITOR.replace('content', {
+            height: 300,
+        });
+
+        // Update the content of the textarea before submitting
+        function updateContent() {
+            // Get CKEditor's content and set it in the textarea
+            var editorData = CKEDITOR.instances.content.getData();
+            document.getElementById('content').value = editorData;
+        }
+    </script>
+</body>
+</html>
