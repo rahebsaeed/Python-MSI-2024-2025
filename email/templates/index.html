@@ -31,22 +31,30 @@
                 <label for="recipient" class="form-label">Recipient</label>
                 <input type="text" class="form-control" id="recipient" name="recipient" placeholder="example1@gmail.com, example2@gmail.com" required>
             </div>
+            <div class="mb-3">
+                <label for="cc_email" class="form-label">CC (optional)</label>
+                <input type="text" class="form-control" id="cc_email" name="cc_email" placeholder="cc1@gmail.com, cc2@gmail.com">
+            </div>            
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" id="no_reply" name="no_reply">
                 <label class="form-check-label" for="no_reply">Send as No Reply</label>
             </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="batch_send" name="batch_send">
+                <label class="form-check-label" for="batch_send">Send All Emails in a Single Batch</label>
+            </div>
             <div class="mb-3">
                 <label for="content" class="form-label">HTML Content</label>
                 <textarea class="form-control" id="content" name="content" rows="5" style="resize: vertical; height: 310px; width:100%" required>
-                <div class="email-container" style="overflow-x: hidden; overflow-y: hidden; max-width: 600px; margin: 20px auto; background: #ffffff; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><div style=" display: block;"><a href="https://www.linkedin.com/company/fsdm-club-robotics/" aria-label="Visit FSDM Robotics Club LinkedIn"><img src="https://github.com/rahebsaeed/club-resources/blob/main/email%20logo.jpg?raw=true" alt="FSDM Robotics Club Logo" ></a></div><div class="email-body" style="padding: 20px; color: #333;"><p>Dear [Recipient's Name],</p></div><div class="email-footer" style="background-color: #e4e8f3; text-align: center; color: #555; padding: 20px; font-size: 0.9em;"><p style="margin-bottom:10px;">© 2025 <b>FSDM Robotics Club</b>. All rights reserved.</p><p style="margin-top:0px; margin-bottom:5px;">Follow us on:</p><div style="margin-top:5px;"><a href="https://wa.me/your_number" target="_blank" aria-label="WhatsApp" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png" alt="WhatsApp" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="https://www.linkedin.com/company/fsdm-club-robotics/" target="_blank" aria-label="LinkedIn" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="https://www.instagram.com/fsdm_robotics?igsh=cGFnbXF2eGE3aDUz" target="_blank" aria-label="Instagram" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="margin: 0 8px; width: 24px; height: 24px;"></a><a href="#" target="_blank" aria-label="Facebook" style="color: #007bff; text-decoration: none; margin: 0 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Facebook_Logo_2023.png/600px-Facebook_Logo_2023.png" alt="Facebook" style="margin: 0 8px; width: 24px; height: 24px;"></a></div></div></div>
-                </textarea>
+ <div style="margin: 0; padding: 0; font-family: Arial, sans-serif; line-height: 1.6; background:#efefef"><div class="email-container" style="overflow-x: hidden; overflow-y: hidden; max-width: 600px; margin: 20px auto; background: #ffffff; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><div style=" display: block;"><a href="https://www.linkedin.com/company/fsdm-club-robotics/" aria-label="Visit FSDM Robotics Club LinkedIn"><img src="https://github.com/rahebsaeed/club-resources/blob/main/email%20logo.jpg?raw=true" alt="FSDM Robotics Club Logo" ></a></div><div class="email-body" style="color:#333333; padding:20px"><table align="center" border="0" cellpadding="0" cellspacing="0" style="width:100%"><tbody><tr><td><strong><span style="font-size:14px"><span style="font-family:Times New Roman,Times,serif">Dear [Recipient&#39;s Name],</span></span></strong></td></tr></tbody></table></div><div class="email-footer" style="background-color:#f9f9f9; color:#555555; font-size:0.9em; padding:20px; text-align:center"><hr /><hr /><p>&copy; 2025 <strong>FSDM Robotics Club</strong>. All rights reserved.</p><p>Follow us on:</p><div style="margin-top:5px"><a href="https://wa.me/your_number" style="color: #007bff; text-decoration: none; margin: 0 5px;" target="_blank"><img alt="WhatsApp" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/512px-WhatsApp.svg.png" style="height:24px; margin:0 8px; width:24px" /></a><a href="https://www.linkedin.com/company/fsdm-club-robotics/" style="color: #007bff; text-decoration: none; margin: 0 5px;" target="_blank"><img alt="LinkedIn" src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" style="height:24px; margin:0 8px; width:24px" /></a><a href="https://www.instagram.com/fsdm_robotics?igsh=cGFnbXF2eGE3aDUz" style="color: #007bff; text-decoration: none; margin: 0 5px;" target="_blank"><img alt="Instagram" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" style="height:24px; margin:0 8px; width:24px" /></a><a href="#" style="color: #007bff; text-decoration: none; margin: 0 5px;" target="_blank"><img alt="Facebook" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Facebook_Logo_2023.png/600px-Facebook_Logo_2023.png" style="height:24px; margin:0 8px; width:24px" /></a></div></div></div>
+</textarea>
             </div>
             <button type="submit" class="btn btn-primary">Send Email</button>
         </form>
     </div>
     <script>
         CKEDITOR.replace('content', {
-            height: 300,
+            height: 400,
         });
 
         // Update the content of the textarea before submitting
@@ -55,6 +63,20 @@
             var editorData = CKEDITOR.instances.content.getData();
             document.getElementById('content').value = editorData;
         }
+
+            // Select the CC email input and the batch send checkbox
+    const ccEmailInput = document.getElementById('cc_email');
+    const batchSendCheckbox = document.getElementById('batch_send');
+
+    // Add an event listener to monitor changes in the CC email input field
+    ccEmailInput.addEventListener('input', () => {
+        // Check if the CC email field has any value
+        if (ccEmailInput.value.trim() !== '') {
+            batchSendCheckbox.checked = true; // Automatically check the checkbox
+        } else {
+            batchSendCheckbox.checked = false; // Uncheck the checkbox if CC email is empty
+        }
+    });
     </script>
 </body>
 </html>

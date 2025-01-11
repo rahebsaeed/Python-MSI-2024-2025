@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import time
+import uuid
 
 app = Flask(__name__)
 
-# Helper function to calculate delta time in milliseconds
+# Helper function to calculate current timestamp in milliseconds
 def get_current_timestamp_ms():
     return int(time.time() * 1000)
 
@@ -14,33 +15,73 @@ def index():
 
 @app.route('/send_data', methods=['POST'])
 def send_data():
-    # Get data from form
-    minutes_1 = int(request.form.get('minutes_1', 0))  # Get minutes
-    seconds_1 = int(request.form.get('seconds_1', 0))  # Get seconds
+    # Retrieve data from form
+    complete_status = request.form.get('complete', 'false').lower() == 'true'
+    score_correct = int(request.form.get('score_correct', 0))
+    score_incorrect = int(request.form.get('score_incorrect', 0))
+    delta_time = int(request.form.get('delta_time', 0))
+    number_of_challenges = int(request.form.get('number_of_challenges', 0))
+    path_step_media_id = request.form.get('path_step_media_id', 'PATHSTEP_161641920')
+    speech_was_enabled = request.form.get('speech_was_enabled', 'true').lower() == 'true'
+    user_id = request.form.get('user_id', '4306254')
+    session_token = request.form.get(
+        'session_token',
+        '5592bd0b99199c0d27aff1520acd99c103038cf2f7421769f689cab0f4e5a2f811e67a344d141600'
+    )
+    lesson_index = int(request.form.get('lesson_index', 0))
 
-    # Convert to delta_time in milliseconds
-    delta_time = (minutes_1 * 60 + seconds_1) * 1000  # Convert to milliseconds
+    # Generate timestamps and request ID
+    updated_at_time = get_current_timestamp_ms()
+    request_id = uuid.uuid4()
 
-    # Construct XML body based on the data received
+    # Constant values
+    course = "SK-ENG-L4-NA-PE-NA-NA-Y-3"
+    unit_index = 0
+    path_type = "vocabulary"
+    occurrence = 1
+    version = 185084
+
+    # Construct XML body for path_step_score
     xml_body_1 = f"""
-    <path_score>
-        <course>SK-FRA-L2-NA-PE-NA-NA-Y-3</course>
-        <unit_index>0</unit_index>
-        <lesson_index>3</lesson_index>
-        <path_type>reading</path_type>
-        <occurrence>1</occurrence>
-        <complete>false</complete>
-        <score_correct>13</score_correct>
-        <score_incorrect>1</score_incorrect>
+    <path_step_score>
+        <course>{course}</course>
+        <unit_index>{unit_index}</unit_index>
+        <lesson_index>{lesson_index}</lesson_index>
+        <path_type>{path_type}</path_type>
+        <occurrence>{occurrence}</occurrence>
+        <path_step_media_id>{path_step_media_id}</path_step_media_id>
+        <complete>{str(complete_status).lower()}</complete>
+        <score_correct>{score_correct}</score_correct>
+        <score_incorrect>{score_incorrect}</score_incorrect>
         <score_skipped type="fmcp">0</score_skipped>
-        <number_of_challenges>42</number_of_challenges>
+        <number_of_challenges>{number_of_challenges}</number_of_challenges>
+        <speech_was_enabled>{str(speech_was_enabled).lower()}</speech_was_enabled>
+        <version>{version}</version>
+        <updated_at>{updated_at_time}</updated_at>
+    </path_step_score>
+    """
+
+    # Construct XML body for path_score
+    xml_body_2 = f"""
+    <path_score>
+        <course>{course}</course>
+        <unit_index>{unit_index}</unit_index>
+        <lesson_index>{lesson_index}</lesson_index>
+        <path_type>{path_type}</path_type>
+        <occurrence>{occurrence}</occurrence>
+        <complete>{str(complete_status).lower()}</complete>
+        <score_correct>{score_correct}</score_correct>
+        <score_incorrect>{score_incorrect}</score_incorrect>
+        <score_skipped type="fmcp">0</score_skipped>
+        <number_of_challenges>31</number_of_challenges>
         <delta_time>{delta_time}</delta_time>
-        <version>184931</version>
-        <updated_at>{get_current_timestamp_ms()}</updated_at>
+        <version>{version}</version>
+        <updated_at>{updated_at_time}</updated_at>
         <is_lagged_review_path>false</is_lagged_review_path>
     </path_score>
     """
 
+    # Headers
     headers = {
         "accept": "*/*",
         "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,ar;q=0.7,fr;q=0.6",
@@ -56,18 +97,25 @@ def send_data():
         "sec-fetch-site": "same-site",
         "x-rosettastone-app-version": "ZoomCourse/11.11.3",
         "x-rosettastone-protocol-version": "8",
-        "x-rosettastone-session-token": "4abce46da621291851ea966b8441e46721e1ab513c541c53a66a5a71df2757ecc67a235df36df7f6"
+        "x-rosettastone-session-token": session_token,
+        "x-request-id": str(request_id)
     }
 
-    url_1 = "https://tracking.rosettastone.com/ee/ce/01dadc90-d74e-4d4f-828c-80af708bd402/users/4306391/path_scores?course=SK-FRA-L2-NA-PE-NA-NA-Y-3&unit_index=0&lesson_index=3&path_type=reading&occurrence=1&_method=put"
+    # URLs
+    url_1 = f"https://tracking.rosettastone.com/ee/ce/01dadc90-d74e-4d4f-828c-80af708bd402/users/{user_id}/path_step_scores?course={course}&unit_index={unit_index}&lesson_index={lesson_index}&path_type={path_type}&occurrence={occurrence}&path_step_media_id={path_step_media_id}&_method=put"
+    url_2 = f"https://tracking.rosettastone.com/ee/ce/01dadc90-d74e-4d4f-828c-80af708bd402/users/{user_id}/path_scores?course={course}&unit_index={unit_index}&lesson_index={lesson_index}&path_type={path_type}&occurrence={occurrence}&_method=put"
 
-    # Send request
+    # Send requests
     response_1 = requests.post(url_1, headers=headers, data=xml_body_1)
+    response_2 = requests.post(url_2, headers=headers, data=xml_body_2)
 
     # Return responses
     return jsonify({
+        "request_id": str(request_id),
         "response_1_status": response_1.status_code,
         "response_1_text": response_1.text,
+        "response_2_status": response_2.status_code,
+        "response_2_text": response_2.text,
     })
 
 if __name__ == '__main__':

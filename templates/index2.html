@@ -45,15 +45,25 @@
         #response {
             margin-top: 20px;
         }
+
+        pre {
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <h1>Enter Duration</h1>
     <form id="durationForm">
         <label for="minutes">Minutes:</label>
-        <input type="number" id="minutes" name="minutes" required><br><br>
+        <input type="number" id="minutes" name="minutes" required min="0"><br><br>
         <label for="seconds">Seconds:</label>
-        <input type="number" id="seconds" name="seconds" required><br><br>
+        <input type="number" id="seconds" name="seconds" required min="0" max="59"><br><br>
         <button type="submit">Send Data</button>
     </form>
 
@@ -64,44 +74,47 @@
     <script>
         const form = document.getElementById('durationForm');
         form.addEventListener('submit', async (event) => {
-            event.preventDefault();
+    event.preventDefault();
 
-            // Collect the form data
-            const formData = new FormData(form);
-            const data = {
-                minutes: formData.get('minutes'),
-                seconds: formData.get('seconds')
-            };
+    // Collect the form data
+    const formData = new FormData(form);
+    const data = {
+        minutes: formData.get('minutes'),
+        seconds: formData.get('seconds'),
+        endTimestamp: new Date().toISOString() // Generate current timestamp in ISO 8601 format
+    };
 
-            try {
-                // Send the data to the Flask server using a POST request with JSON
-                const response = await fetch('/send_data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                // Parse the JSON response
-                const responseData = await response.json();
-                const responseDiv = document.getElementById('response');
-
-                // Display both responses (status and JSON data) from the Flask server
-                responseDiv.innerHTML = `
-                    <h2>Response 1 Status: ${responseData.status_1}</h2>
-                    <h3>Response 1:</h3>
-                    <pre>${JSON.stringify(responseData.response_1, null, 2)}</pre>
-                `;
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('response').innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-            }
+    try {
+        // Send the data to the Flask server using a POST request with JSON
+        const response = await fetch('/send_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        // Parse the JSON response
+        const responseData = await response.json();
+        const responseDiv = document.getElementById('response');
+
+        // Display the response
+        responseDiv.innerHTML = `
+            <h2>Server Response</h2>
+            <pre>${JSON.stringify(responseData, null, 2)}</pre>
+        `;
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('response').innerHTML = `
+            <p class="error">Error: ${error.message}</p>
+        `;
+    }
+});
+
     </script>
 </body>
 </html>

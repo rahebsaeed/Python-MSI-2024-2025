@@ -1,7 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import requests
-from flask_cors import CORS  # Import CORS from flask_cors
+from flask_cors import CORS
+import json
+import uuid
+
+# Suppress the InsecureRequestWarning (Not for production)
+requests.packages.urllib3.disable_warnings()
 
 # Create Flask app
 app = Flask(__name__)
@@ -18,41 +23,25 @@ def send_data():
     try:
         # Get the JSON data from the request body
         data = request.get_json()
-        
-        # Extract minutes and seconds from the received JSON data
-        minutes = int(data['minutes'])
-        seconds = int(data['seconds'])
-        
-        # Calculate duration in milliseconds
-        duration_ms = (minutes * 60 + seconds) * 1000
-        
-        # Get the current time for endTimestamp
-        end_timestamp = datetime.utcnow().isoformat() + "Z"  # ISO format with 'Z' for UTC time
-        
-        # Prepare the GraphQL mutation request body (AddUsageOverhead)
-        graphql_body = {
-            "operationName": "AddUsageOverhead",
-            "variables": {
-                "messages": [{
-                    "id": "85a3b7eb-538e-4d85-a503-a24214462ea1",  # Example ID
-                    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-                    "learningContext": "0b1dcc54dba29230766844be8f1f228c",  # Example learning context ID
-                    "durationMs": duration_ms,
-                    "endTimestamp": end_timestamp
-                }]
-            },
-            "query": """
-                mutation AddUsageOverhead($messages: [UsageOverheadMessage!]!) {
-                    usageOverhead(messages: $messages)
-                }
-            """
-        }
 
-        # Define headers for the request
+        # Extract duration from received JSON
+        minutes = int(data.get('minutes', 0))
+        seconds = int(data.get('seconds', 0))
+        duration_ms = (minutes * 60 + seconds) * 1000
+
+        # Generate unique UUIDs
+        activity_attempt_id = str(uuid.uuid4())
+        activity_step_attempt_id_1 = str(uuid.uuid4())
+        activity_step_attempt_id_2 = str(uuid.uuid4())
+
+        # Set the common timestamp
+        end_timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + "Z"
+
+        # Define common headers
         headers = {
             "accept": "*/*",
             "accept-language": "en-GB,en-US;q=0.9,en;q=0.8,ar;q=0.7,fr;q=0.6",
-            "authorization": "Bearer 81b643ef-514e-4c66-bdbc-ed70d08944c4",  # Example Bearer token
+            "authorization": "Bearer 352ffbe4-b455-439d-a28c-a089ab1df7de",
             "cache-control": "no-cache",
             "content-type": "application/json",
             "pragma": "no-cache",
@@ -65,22 +54,86 @@ def send_data():
             "sec-fetch-site": "same-site"
         }
 
-        # Send the POST request (AddUsageOverhead)
-        url = "https://gaia-server.rosettastone.com/graphql"
-        response = requests.post(url, json=graphql_body, headers=headers)
+        # Prepare GraphQL request bodies
+        graphql_body_1 = {
+            "operationName": "AddProgress",
+            "variables": {
+                "userId": "a5c359e9-22fc-4507-a0e9-032f336c216b",
+                "messages": [
+                    {
+                        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                        "courseId": "bc84c0820f1d9bde0b4f0293c1a6e1a5",
+                        "sequenceId": "22e31574-cd98-46a7-8b5e-9185d4dc414d",
+                        "version": 2,
+                        "activityId": "aa48863dc7200b33f847a7b777a1d35c",
+                        "activityAttemptId": activity_attempt_id,
+                        "activityStepId": "2323a0bf-1a57-443b-b73a-feb7d3541f0d",
+                        "activityStepAttemptId": activity_step_attempt_id_1,
+                        "answers": [{"answer": "SS:d7031cad-5b09-4e3c-8ae3-621df90beac7:1:false", "correct": True}],
+                        "score": 1,
+                        "skip": False,
+                        "durationMs": duration_ms,
+                        "endTimestamp": end_timestamp
+                    }
+                ]
+            },
+            "query": """
+                mutation AddProgress($userId: String, $messages: [ProgressMessage!]!) {
+                  progress(userId: $userId, messages: $messages) {
+                    id
+                    __typename
+                  }
+                }
+            """
+        }
 
-        # Process and return the response
+        graphql_body_2 = {
+            "operationName": "AddProgress",
+            "variables": {
+                "userId": "a5c359e9-22fc-4507-a0e9-032f336c216b",
+                "messages": [
+                    {
+                        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                        "courseId": "bc84c0820f1d9bde0b4f0293c1a6e1a5",
+                        "sequenceId": "22e31574-cd98-46a7-8b5e-9185d4dc414d",
+                        "version": 2,
+                        "activityId": "aa48863dc7200b33f847a7b777a1d35c",
+                        "activityAttemptId": activity_attempt_id,
+                        "activityStepId": "2323a0bf-1a57-443b-b73a-feb7d3541f0d",
+                        "activityStepAttemptId": activity_step_attempt_id_2,
+                        "answers": [{"answer": "SS:14ef0e76-fbbf-4964-b20d-426ae8b1d3ad:1:false", "correct": True}],
+                        "score": 0,
+                        "skip": False,
+                        "durationMs": 1,
+                        "endTimestamp": end_timestamp
+                    }
+                ]
+            },
+            "query": """
+                mutation AddProgress($userId: String, $messages: [ProgressMessage!]!) {
+                  progress(userId: $userId, messages: $messages) {
+                    id
+                    __typename
+                  }
+                }
+            """
+        }
+
+        # Send the POST requests
+        url = "https://gaia-server.rosettastone.com/graphql"
+        response_1 = requests.post(url, json=graphql_body_1, headers=headers, verify=False)
+        response_2 = requests.post(url, json=graphql_body_2, headers=headers, verify=False)
+
+        # Return the response
         return jsonify({
-            "status_1": response.status_code,
-            "response_1": response.json(),
+            "status_1": response_1.status_code,
+            "response_1": response_1.json(),
+            "status_2": response_2.status_code,
+            "response_2": response_2.json()
         })
 
     except Exception as e:
-        # If there's an error, return a response with the error message
-        return jsonify({
-            "status_1": "Error",
-            "response_1": str(e)
-        })
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)

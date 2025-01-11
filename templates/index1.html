@@ -1,44 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Input Form</title>
+    <title>Send Data to API</title>
 </head>
 <body>
-    <h1>Enter Time for Delta Calculation</h1>
-    <form action="/send_data" method="POST">
-        <label for="minutes_1">Minutes 1:</label>
-        <input type="number" id="minutes_1" name="minutes_1" required><br><br>
-        
-        <label for="seconds_1">Seconds 1:</label>
-        <input type="number" id="seconds_1" name="seconds_1" required><br><br>
+    <h1>Send Data to API</h1>
+    <form id="dataForm">
+        <label for="delta_time_minutes">Delta Time (Minutes):</label>
+        <input type="number" id="delta_time_minutes" name="delta_time_minutes" value="0"><br><br>
 
-        <button type="submit">Submit</button>
+        <label for="delta_time_seconds">Delta Time (Seconds):</label>
+        <input type="number" id="delta_time_seconds" name="delta_time_seconds" value="0"><br><br>
+
+        <input type="hidden" id="complete" name="complete" value="true">
+        <input type="hidden" id="score_correct" name="score_correct" value="3">
+        <input type="hidden" id="score_incorrect" name="score_incorrect" value="1">
+         <input type="hidden" id="number_of_challenges" name="number_of_challenges" value="4">
+        <input type="hidden" id="path_step_media_id" name="path_step_media_id" value="PATHSTEP_140707092">
+         <input type="hidden" id="speech_was_enabled" name="speech_was_enabled" value="true">
+
+        <button type="button" onclick="sendData()">Send Data</button>
     </form>
 
     <div id="response"></div>
 
     <script>
-        const form = document.querySelector('form');
-        form.onsubmit = async (event) => {
-            event.preventDefault();
-    
+        function sendData() {
+            const form = document.getElementById('dataForm');
+            const deltaMinutes = parseInt(form.delta_time_minutes.value, 10) || 0;
+            const deltaSeconds = parseInt(form.delta_time_seconds.value, 10) || 0;
+            const deltaMs = (deltaMinutes * 60 + deltaSeconds) * 1000;
+
+             // Update complete for the path step score
+             form.complete.value = 'true';
+             // Update score correct for the path step score
+             form.score_correct.value = '3';
+            // Update score incorrect for the path step score
+            form.score_incorrect.value = '1';
+            
             const formData = new FormData(form);
-            const response = await fetch('/send_data', {
+             // Update delta time for the path score
+            formData.append('delta_time', deltaMs)
+
+            fetch('/send_data', {
                 method: 'POST',
-                body: formData
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerHTML = `
+                    <p>Response 1 Status: ${data.response_1_status}</p>
+                    <p>Response 1 Text: ${data.response_1_text}</p>
+                    <p>Response 2 Status: ${data.response_2_status}</p>
+                    <p>Response 2 Text: ${data.response_2_text}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('response').innerHTML = '<p>Error sending data.</p>';
             });
-    
-            const data = await response.json();
-            const responseDiv = document.getElementById('response');
-            responseDiv.innerHTML = `
-                <h2>Response 1:</h2>
-                <p>Status: ${data.response_1_status}</p>
-                <p>Text: ${data.response_1_text}</p>
-            `;
-        };
+        }
     </script>
-    
 </body>
 </html>

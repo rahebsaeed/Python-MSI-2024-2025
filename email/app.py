@@ -39,59 +39,76 @@ def append_to_json(data, file_name='email_data.json'):
 def index():
     if request.method == "POST":
         # Extract form data from request
-        sender_name = request.form.get("sender_name", "FSDM Robotics Club")  # Default to FSDM Robotics Club
-        sender_email = request.form.get("sender_email", MAIL_USERNAME)  # Default to the configured email
-        recipient = request.form.get("recipient")  # This should match the HTML form's name attribute
-        subject = request.form.get("subject")  # This should match the HTML form's name attribute
-        content = request.form.get("content")  # This should match the HTML form's name attribute
-        no_reply = request.form.get("no_reply")  # Check if the No Reply checkbox is checked
+        sender_name = request.form.get("sender_name", "FSDM Robotics Club")
+        sender_email = request.form.get("sender_email", MAIL_USERNAME)
+        recipient = request.form.get("recipient")
+        cc_email = request.form.get("cc_email")  # Optional CC email
+        subject = request.form.get("subject")
+        content = request.form.get("content")
+        no_reply = request.form.get("no_reply")
+        batch_send = request.form.get("batch_send")  # Check if batch sending is selected
 
         # Validate fields
         if not recipient or not subject or not content:
             flash("All fields are required!", "danger")
-            return redirect(url_for('index'))  # Redirect back to the form
+            return redirect(url_for('index'))
 
         try:
-            # Split recipient emails if multiple
+            # Split recipient and CC emails
             recipients = [email.strip() for email in recipient.split(',')]
+            cc_recipients = [email.strip() for email in cc_email.split(',')] if cc_email else []
 
-            # Establish the SMTP connection and send the email
+            # Establish SMTP connection
             with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-                server.starttls()  # Secure the connection
-                server.login(MAIL_USERNAME, MAIL_PASSWORD)  # Login to the email account
+                server.starttls()
+                server.login(MAIL_USERNAME, MAIL_PASSWORD)
 
-                for recipient_email in recipients:
-                    # Create the email message
+                if batch_send:
+                    # Send all emails in a single batch
                     msg = MIMEMultipart()
                     msg['From'] = f"{sender_name} <{sender_email}>"
-                    msg['To'] = recipient_email  # Set the To field to the current recipient's email
+                    msg['To'] = ", ".join(recipients)
+                    msg['Cc'] = ", ".join(cc_recipients)
                     msg['Subject'] = subject
-                    msg.attach(MIMEText(content, 'html'))  # Attach the HTML content
+                    msg.attach(MIMEText(content, 'html'))
 
                     # Add 'Reply-To' header if No Reply checkbox is checked
                     if no_reply:
-                        msg['Reply-To'] = 'no-reply@example.com'  # Set an invalid email for no reply
+                        msg['Reply-To'] = 'no-reply@gmail.com'
 
-                    # Send the email to the individual recipient
-                    server.sendmail(sender_email, recipient_email, msg.as_string())  # Send email to each recipient separately
+                    # Send batch email
+                    server.sendmail(sender_email, recipients + cc_recipients, msg.as_string())
+                else:
+                    # Send emails individually
+                    for recipient_email in recipients:
+                        msg = MIMEMultipart()
+                        msg['From'] = f"{sender_name} <{sender_email}>"
+                        msg['To'] = recipient_email
+                        msg['Subject'] = subject
+                        msg.attach(MIMEText(content, 'html'))
 
-            # Prepare the data to be saved in JSON
+                        if no_reply:
+                            msg['Reply-To'] = 'no-reply@gmail.com'
+
+                        server.sendmail(sender_email, [recipient_email] + cc_recipients, msg.as_string())
+
+            # Save email data to JSON
             email_data = {
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "subject": subject,
                 "recipients": recipients,
+                "cc_recipients": cc_recipients,
                 "no_reply": True if no_reply else False,
+                "batch_send": True if batch_send else False,
                 "content": content,
             }
-
-            # Append the email data to the JSON file
             append_to_json(email_data)
 
-            flash("Emails sent successfully to each recipient!", "success")
-            return redirect(url_for('index'))  # Redirect back to the form
+            flash("Emails sent successfully!", "success")
+            return redirect(url_for('index'))
         except Exception as e:
             flash(f"Error: {str(e)}", "danger")
-            return redirect(url_for('index'))  # Redirect back to the form
+            return redirect(url_for('index'))
 
     return render_template('index.html')
 
